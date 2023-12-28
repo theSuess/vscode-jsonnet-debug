@@ -1,6 +1,6 @@
 {
-  "name": "mock-debug",
-  "displayName": "Mock Debug",
+  "name": "jsonnet-debug",
+  "displayName": "Jsonnet Debug",
   "version": "0.52.0",
   "publisher": "ms-vscode",
   "description": "Starter extension for developing debug adapters for VS Code.",
@@ -66,177 +66,62 @@
   "main": "./dist/extension.js",
   "browser": "./dist/web-extension.js",
   "activationEvents": [
-    "onDebugResolve:mock",
-    "onDebugDynamicConfigurations:mock",
-    "onCommand:extension.mock-debug.getProgramName"
+    "workspaceContains:**/*.jsonnet",
+    "workspaceContains:**/*.libsonnet",
+    "onLanguage:jsonnet",
+    "onDebug"
   ],
   "workspaceTrust": {
     "request": "never"
   },
   "contributes": {
-    "menus": {
-      "editor/title/run": [
-        {
-          "command": "extension.mock-debug.runEditorContents",
-          "when": "resourceLangId == markdown",
-          "group": "navigation@1"
-        },
-        {
-          "command": "extension.mock-debug.debugEditorContents",
-          "when": "resourceLangId == markdown",
-          "group": "navigation@2"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "extension.mock-debug.debugEditorContents",
-          "when": "resourceLangId == markdown"
-        },
-        {
-          "command": "extension.mock-debug.runEditorContents",
-          "when": "resourceLangId == markdown"
-        }
-      ],
-      "debug/variables/context": [
-        {
-          "command": "extension.mock-debug.toggleFormatting",
-          "when": "debugType == 'mock' && debugProtocolVariableMenuContext == 'simple'"
-        }
-      ]
-    },
     "commands": [
       {
-        "command": "extension.mock-debug.debugEditorContents",
-        "title": "Debug File",
-        "category": "Mock Debug",
-        "enablement": "!inDebugMode",
-        "icon": "$(debug-alt)"
-      },
-      {
-        "command": "extension.mock-debug.runEditorContents",
-        "title": "Run File",
-        "category": "Mock Debug",
-        "enablement": "!inDebugMode",
-        "icon": "$(play)"
-      },
-      {
-        "command": "extension.mock-debug.toggleFormatting",
-        "title": "Toggle between decimal and hex formatting"
+        "command": "jsonnet.debug.current",
+        "category": "Jsonnet",
+        "title": "Debug a jsonnet manifest",
+        "icon": "$(run-view-icon)",
+        "enablement": "resourceFilename =~ /\\.(jsonnet|libsonnet)$/"
       }
     ],
     "breakpoints": [
       {
-        "language": "markdown"
+        "language": "jsonnet"
       }
     ],
     "debuggers": [
       {
-        "type": "mock",
+        "type": "jsonnet",
         "languages": [
-          "markdown"
+          "jsonnet"
         ],
-        "label": "Mock Debug",
-        "program": "./out/debugAdapter.js",
-        "runtime": "node",
+        "label": "Jsonnet Debugger",
         "configurationAttributes": {
           "launch": {
             "required": [
-              "program"
+              "program",
+              "jpaths"
             ],
             "properties": {
               "program": {
                 "type": "string",
-                "description": "Absolute path to a text file.",
-                "default": "${workspaceFolder}/${command:AskForProgramName}"
+                "description": "datasonnet script to run"
               },
-              "stopOnEntry": {
-                "type": "boolean",
-                "description": "Automatically stop after launch.",
-                "default": true
-              },
-              "trace": {
-                "type": "boolean",
-                "description": "Enable logging of the Debug Adapter Protocol.",
-                "default": true
-              },
-              "compileError": {
-                "type": "string",
-                "description": "Simulates a compile error in 'launch' request.",
-                "enum": [
-                  "default",
-                  "show",
-                  "hide"
-                ],
-                "enumDescriptions": [
-                  "default: show fake compile error to user",
-                  "show fake compile error to user",
-                  "do not show fake compile error to user"
-                ]
-              }
-            }
-          },
-          "attach": {
-            "required": [
-              "program"
-            ],
-            "properties": {
-              "program": {
-                "type": "string",
-                "description": "Absolute path to a text file.",
-                "default": "${workspaceFolder}/${command:AskForProgramName}"
-              },
-              "stopOnEntry": {
-                "type": "boolean",
-                "description": "Automatically stop after attach.",
-                "default": true
-              },
-              "trace": {
-                "type": "boolean",
-                "description": "Enable logging of the Debug Adapter Protocol.",
-                "default": true
-              },
-              "compileError": {
-                "type": "string",
-                "description": "Simulates a compile error in 'attach' request.",
-                "enum": [
-                  "default",
-                  "show",
-                  "hide"
-                ],
-                "enumDescriptions": [
-                  "default: show fake compile error to user",
-                  "show fake compile error to user",
-                  "do not show fake compile error to user"
-                ]
+              "jpaths": {
+                "type": "string[]",
+                "description": "jsonnet search paths"
               }
             }
           }
         },
         "initialConfigurations": [
           {
-            "type": "mock",
+            "type": "jsonnet",
             "request": "launch",
-            "name": "Ask for file name",
-            "program": "${workspaceFolder}/${command:AskForProgramName}",
-            "stopOnEntry": true
+            "name": "Launch jsonnet debugger"
           }
         ],
-        "configurationSnippets": [
-          {
-            "label": "Mock Debug: Launch",
-            "description": "A new configuration for 'debugging' a user selected markdown file.",
-            "body": {
-              "type": "mock",
-              "request": "launch",
-              "name": "Ask for file name",
-              "program": "^\"\\${workspaceFolder}/\\${command:AskForProgramName}\"",
-              "stopOnEntry": true
-            }
-          }
-        ],
-        "variables": {
-          "AskForProgramName": "extension.mock-debug.getProgramName"
-        }
+        "configurationSnippets": []
       }
     ]
   }
